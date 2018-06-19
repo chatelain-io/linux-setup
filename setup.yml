@@ -26,6 +26,7 @@
     - https://dl.google.com/linux/linux_signing_key.pub
     - https://packages.microsoft.com/keys/microsoft.asc
     - https://download.docker.com/linux/ubuntu/gpg
+    - https://packages.cloud.google.com/apt/doc/apt-key.gpg 
 
   - name: add apt repositories
     become: yes
@@ -36,6 +37,8 @@
     - deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main
     - deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main
     - deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+    - deb http://apt.kubernetes.io/ kubernetes-xenial main
+    - deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ xenial main
 
   - name: install apps
     become: yes
@@ -53,6 +56,8 @@
     - libpam0g:i386 
     - libx11-6:i386
     - docker-ce
+    - kubectl
+    - azure-cli
 
   - name: remove duplicate repositories
     become: yes
@@ -85,3 +90,11 @@
       name: "{{ ansible_user_id }}"
       groups: docker
       append: yes
+
+  - name: Add kubectl completion
+    lineinfile:
+      path: ~/.bashrc
+      state: present
+      regexp: '^source \<\(kubectl completion bash\)'
+      line: 'source <(kubectl completion bash)'
+  

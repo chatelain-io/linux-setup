@@ -1,0 +1,58 @@
+---
+- hosts: acs
+  tasks:
+
+  - name: Create sudoers.d file
+    become: yes
+    file:
+      path: /etc/sudoers.d/{{ ansible_user_id }}
+      state: touch 
+
+  - name: Allow current to have passwordless sudo
+    become: yes
+    lineinfile:
+      dest: /etc/sudoers.d/{{ ansible_user_id }}
+      state: present
+      regexp: '^{{ ansible_user_id }}'
+      line: '{{ ansible_user_id }} ALL=(ALL) NOPASSWD: ALL'
+      validate: 'visudo -cf %s'
+  
+  - name: add apt keys
+    become: yes
+    apt_key:
+      url: "{{ item }}"
+      state: present 
+    with_items:
+    - https://dl.google.com/linux/linux_signing_key.pub
+    - https://packages.microsoft.com/keys/microsoft.asc
+
+  - name: add apt repositories
+    become: yes
+    apt_repository:
+      repo: "{{ item }}"
+      state: present
+    with_items:
+    - deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main
+    - deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main
+
+  - name: install apps
+    become: yes
+    apt:
+      autoclean: yes
+      autoremove: yes
+      update_cache: yes
+      name: "{{ item }}"
+    with_items:
+    - git
+    - google-chrome-stable
+    - code 
+    - openjdk-8-jdk
+
+  - name: remove duplicate repositories
+    become: yes
+    file:
+      path: /etc/apt/sources.list.d/{{ item }} 
+      state: absent
+    with_items:
+    - google-chrome.list
+    - vscode.list

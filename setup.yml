@@ -40,6 +40,13 @@
     - deb http://apt.kubernetes.io/ kubernetes-xenial main
     - deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ xenial main
 
+  - name: add deb packages
+    become: yes
+    apt:
+      deb: "{{ item }}"
+    with_items:
+    - https://packages.microsoft.com/config/ubuntu/16.04/packages-microsoft-prod.deb
+
   - name: install apps
     become: yes
     apt:
@@ -58,6 +65,7 @@
     - docker-ce
     - kubectl
     - azure-cli
+    - dotnet-sdk-2.1
 
   - name: remove duplicate repositories
     become: yes
@@ -98,3 +106,14 @@
       regexp: '^source \<\(kubectl completion bash\)'
       line: 'source <(kubectl completion bash)'
   
+  - name: install vscode extensions
+    shell: code --install-extension {{ item }}
+    with_items:
+    - ms-python.python
+    - msjsdiag.debugger-for-chrome
+    - ms-vscode.csharp
+    - eamodio.gitlens
+    - ms-vscode.go
+    - peterjausovec.vscode-docker
+    - ms-vscode.powershell
+    - formulahendry.auto-close-tag

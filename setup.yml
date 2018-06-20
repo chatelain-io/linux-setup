@@ -68,6 +68,7 @@
     - azure-cli
     - dotnet-sdk-2.1
     - thunderbird
+    - openvpn
 
   - name: remove duplicate repositories
     become: yes

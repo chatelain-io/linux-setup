@@ -39,6 +39,7 @@
     - deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
     - deb http://apt.kubernetes.io/ kubernetes-xenial main
     - deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ xenial main
+    - ppa:ubuntu-mozilla-security/ppa
 
   - name: add deb packages
     become: yes
@@ -66,6 +67,7 @@
     - kubectl
     - azure-cli
     - dotnet-sdk-2.1
+    - thunderbird
 
   - name: remove duplicate repositories
     become: yes

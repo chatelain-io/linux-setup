@@ -2,21 +2,29 @@
 - hosts: acs
   tasks:
 
-  - name: Create sudoers.d file
-    become: yes
-    file:
-      path: /etc/sudoers.d/{{ ansible_user_id }}
-      state: touch 
-
   - name: Allow current user to have passwordless sudo
     become: yes
-    lineinfile:
+    copy:
+      content: "{{ ansible_user_id }} ALL=(ALL) NOPASSWD: ALL"
       dest: /etc/sudoers.d/{{ ansible_user_id }}
-      state: present
-      regexp: '^{{ ansible_user_id }}'
-      line: '{{ ansible_user_id }} ALL=(ALL) NOPASSWD: ALL'
-      validate: 'visudo -cf %s'
-  
+
+  - name: create .ssh directory
+    file:
+      path: /home/{{ ansible_user_id }}/.ssh
+      state: directory
+      
+  - name: write .ssh/config
+    copy: 
+      content: "{{ item.content }}"
+      dest: /home/{{ ansible_user_id }}/.ssh/{{ item.name }}
+    with_items:
+    - content: "{{ ssh_config }}"
+      name: config
+    - content: "{{ ssh_private_key }}"
+      name: id_rsa
+    - content: "{{ ssh_public_key }}"
+      name: id_rsa.pub
+        
   - name: add apt keys
     become: yes
     apt_key:
@@ -81,7 +89,7 @@
 
   - name: download snx script
     get_url:
-      url: https://vpn.logibec.com/CSHELL/snx_install.sh
+      url: "{{ vpn_url }}"
       dest: "{{ playbook_dir }}/snx_install.sh"
       mode: +x
 
@@ -120,3 +128,13 @@
     - peterjausovec.vscode-docker
     - ms-vscode.powershell
     - formulahendry.auto-close-tag
+    - formulahendry.code-runner
+    - davidanson.vscode-markdownlint
+    - humao.rest-client
+    - christian-kohler.path-intellisense
+    - rebornix.ruby
+    - formulahendry.auto-rename-tag
+    ignore_errors: yes
+
+  
+

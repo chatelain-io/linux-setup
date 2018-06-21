@@ -44,17 +44,18 @@
     with_items:
     - deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main
     - deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main
-    - deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
-    - deb http://apt.kubernetes.io/ kubernetes-xenial main
-    - deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ xenial main
+    - deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+    - deb [arch=amd64] https://packages.cloud.google.com/apt/ kubernetes-xenial main
+    - deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ bionic main
     - ppa:ubuntu-mozilla-security/ppa
+    - deb [arch=amd64] https://packages.microsoft.com/ubuntu/18.04/prod bionic main
 
-  - name: add deb packages
-    become: yes
-    apt:
-      deb: "{{ item }}"
-    with_items:
-    - https://packages.microsoft.com/config/ubuntu/16.04/packages-microsoft-prod.deb
+  #- name: add deb packages
+  #  become: yes
+  #  apt:
+  #    deb: "{{ item }}"
+  #  with_items:
+  #  - https://packages.microsoft.com/config/ubuntu/16.04/packages-microsoft-prod.deb
 
   - name: install apps
     become: yes
@@ -77,6 +78,7 @@
     - dotnet-sdk-2.1
     - thunderbird
     - openvpn
+    - terminator
 
   - name: remove duplicate repositories
     become: yes
@@ -136,5 +138,28 @@
     - formulahendry.auto-rename-tag
     ignore_errors: yes
 
-  
+  - name: download lastpass
+    get_url:
+      url: https://lastpass.com/lplinux.tar.bz2
+      dest: "/home/{{ ansible_user_id }}/Downloads"
 
+  - name: create lastpass directory
+    file:
+      path: /home/{{ ansible_user_id }}/Downloads/lastpass
+      state: directory
+
+  - name: unarchive lastpass
+    unarchive:
+      src: /home/{{ ansible_user_id }}/Downloads/lplinux.tar.bz2
+      dest: /home/{{ ansible_user_id }}/Downloads/lastpass
+  
+  - name: set lastpass execute
+    file:
+      path: /home/{{ ansible_user_id }}/Downloads/lastpass/install_lastpass.sh
+      mode: +x
+
+  - name: install lastpass
+    shell: ./install_lastpass.sh
+    args:
+      chdir: /home/{{ ansible_user_id }}/Downloads/lastpass/
+    

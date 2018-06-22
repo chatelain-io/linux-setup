@@ -17,6 +17,7 @@
     copy: 
       content: "{{ item.content }}"
       dest: /home/{{ ansible_user_id }}/.ssh/{{ item.name }}
+      mode: 0600
     with_items:
     - content: "{{ ssh_config }}"
       name: config
